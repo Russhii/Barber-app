@@ -1,24 +1,22 @@
-// lib/signup_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'fill_profile_page.dart';
 import 'home_page.dart';
-import 'signin_page.dart';
+import 'signup_page.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignInPageState extends State<SignInPage> {
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _rememberMe = false;
 
-  Future<void> _signUpAndRedirect() async {
+  Future<void> _login() async {
     if (_emailCtrl.text.isEmpty || _passCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all fields")),
@@ -27,25 +25,23 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     try {
-      // This will now work instantly because email confirmation is OFF in dashboard
-      final response = await Supabase.instance.client.auth.signUp(
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: _emailCtrl.text.trim(),
         password: _passCtrl.text,
       );
 
-      if (!mounted) return;
-
+// Auto-create profile if missing (safe upsert)
       if (response.user != null) {
-        // Profile created automatically via trigger → now go to Fill Profile
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const FillProfilePage()),
-              (route) => false,
-        );
+        await Supabase.instance.client
+            .from('profiles')
+            .upsert({
+          'id': response.user!.id,
+          'email': response.user!.email,
+        }, onConflict: 'id');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
+        SnackBar(content: Text("Login failed: ${e.toString()}")),
       );
     }
   }
@@ -61,19 +57,9 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white70),
-              ),
+              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios, color: Colors.white70)),
               const SizedBox(height: 20),
-              Text(
-                "Create your\nAccount",
-                style: GoogleFonts.poppins(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+              Text("Login to your\nAccount", style: GoogleFonts.poppins(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white)),
 
               const Spacer(flex: 2),
 
@@ -82,64 +68,48 @@ class _SignUpPageState extends State<SignUpPage> {
               _InputField(controller: _passCtrl, hint: "Password", icon: Icons.lock_outline_rounded, isPassword: true),
 
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _rememberMe,
-                    activeColor: Colors.orange,
-                    onChanged: (v) => setState(() => _rememberMe = v!),
-                  ),
-                  Text("Remember me", style: GoogleFonts.poppins(color: Colors.white)),
-                ],
-              ),
+              Row(children: [
+                Checkbox(value: _rememberMe, activeColor: Colors.orange, onChanged: (v) => setState(() => _rememberMe = v!)),
+                Text("Remember me", style: GoogleFonts.poppins(color: Colors.white)),
+              ]),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: _signUpAndRedirect,
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF6B00),
                     elevation: 20,
                     shadowColor: const Color(0xFFFF6B00).withOpacity(0.7),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  child: Text(
-                    "Sign up",
-                    style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
+                  child: Text("Sign in", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
                 ),
               ),
 
-              const Spacer(flex: 2),
+              const SizedBox(height: 16),
+              Center(child: Text("Forgot the password?", style: GoogleFonts.poppins(color: const Color(0xFFFF6B00)))),
+
+              const Spacer(),
               const Center(child: Text("or continue with", style: TextStyle(color: Colors.grey))),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/facebook.svg', color: const Color(0xFF1877F2)),
-                  const SizedBox(width: 30),
-                  _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg'),
-                ],
-              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/facebook.svg', color: const Color(0xFF1877F2)),
+                const SizedBox(width: 30),
+                _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg'),
+              ]),
 
               const SizedBox(height: 30),
               Center(
                 child: GestureDetector(
-                  onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInPage())),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Already have an account? ",
-                      style: const TextStyle(color: Colors.grey),
-                      children: [
-                        TextSpan(
-                          text: "Sign in",
-                          style: GoogleFonts.poppins(color: const Color(0xFFFF6B00), fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ),
+                  onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
+                  child: Text.rich(TextSpan(
+                    text: "Don't have an account? ",
+                    style: const TextStyle(color: Colors.grey),
+                    children: [TextSpan(text: "Sign up", style: GoogleFonts.poppins(color: const Color(0xFFFF6B00), fontWeight: FontWeight.bold))],
+                  )),
                 ),
               ),
               const SizedBox(height: 40),
@@ -151,7 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// Reusable widgets (same as before)
+// Reuse same _InputField and _SocialIcon
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
@@ -181,7 +151,6 @@ class _SocialIcon extends StatelessWidget {
   final String url;
   final Color? color;
   const _SocialIcon(this.url, {this.color});
-
   @override
   Widget build(BuildContext context) {
     return Container(

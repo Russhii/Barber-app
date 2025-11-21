@@ -3,6 +3,9 @@
     package="com.example.untitled">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Required for Google Sign-In -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:label="untitled"
@@ -22,18 +25,18 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
-            <!-- App Launcher -->
+            <!-- Launcher Intent -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Supabase OAuth Deep Link (REQUIRED) -->
-            <intent-filter>
+            <!-- THIS IS THE ONLY DEEP LINK YOU NEED FOR SUPABASE + GOOGLE SIGN-IN -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="io.supabase.flutter" />
+                <data android:scheme="io.supabase.flutter" android:host="auth-callback" />
             </intent-filter>
 
         </activity>
@@ -41,14 +44,19 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
     </application>
 
-    <!-- Required for Android 11+ -->
+    <!-- Required for Android 11+ (API 30+) -->
     <queries>
+        <!-- For Google Sign-In -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" />
         </intent>
+        <!-- For opening Google login page -->
+        <package android:name="com.google.android.gms" />
     </queries>
+
 </manifest>

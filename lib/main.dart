@@ -1,15 +1,17 @@
-// main.dart
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'login_page1.dart'; // Correct import
+import 'login_page.dart';
+import 'home_page.dart';
+import 'fill_profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://rttjauaoyqyuuryfauzh.supabase.co',
+    url: 'https://otcqgozalgpmuzhocdlb.supabase.co',
     anonKey:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dGphdWFveXF5dXVyeWZhdXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1NjMwOTQsImV4cCI6MjA3OTEzOTA5NH0.Wu1c969TZUxY-AreYOqUUwATm4Qm0F8uAdICfaZsCxg',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90Y3Fnb3phbGdwbXV6aG9jZGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2MjczODUsImV4cCI6MjA3OTIwMzM4NX0.7VXQbHbkM790MnO6CrNiGEfvN3gZtlE3d7M-24LX4_c',
   );
 
   runApp(const MyApp());
@@ -22,10 +24,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: Colors.orange,
-      ),
+      title: 'Salon App',
+      theme: ThemeData(scaffoldBackgroundColor: const Color(0xFF0D0D0D)),
       home: const AuthWrapper(),
     );
   }
@@ -39,46 +39,35 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data!.session != null) {
-          return const HomePage();
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        return const EmailLoginPage();
+
+        final user = snapshot.data?.session?.user;
+
+        if (user == null) return const LoginPage();
+
+        return FutureBuilder(
+          future: Supabase.instance.client
+              .from('profiles')
+              .select('full_name')
+              .eq('id', user.id)
+              .maybeSingle(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            }
+
+            final hasProfile = snap.hasData && snap.data != null && (snap.data as Map)['full_name'] != null;
+
+            if (!hasProfile) {
+              return const FillProfilePage();
+            }
+
+            return const HomePage();
+          },
+        );
       },
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Welcome!",
-                style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            const SizedBox(height: 10),
-            Text(user?.email ?? '',
-                style:
-                const TextStyle(fontSize: 18, color: Colors.orange)),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () => Supabase.instance.client.auth.signOut(),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text("Sign Out"),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
