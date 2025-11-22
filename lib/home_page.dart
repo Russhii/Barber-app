@@ -45,38 +45,54 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
+      backgroundColor: const Color(0xFF0D0D0D), appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      toolbarHeight: 120, // Gives enough space
+      title: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              backgroundColor: Colors.orange.shade700,
-              child: Text(
-                "C",
-                style: GoogleFonts.poppins(
-                    fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            // Greeting – smaller but bold and clear
+            Text(
+              "Morning, ${user?.userMetadata?['full_name']?.split(' ').first ?? user?.email?.split('@').first ?? 'Guest'}!",
+              style: GoogleFonts.poppins(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                height: 1.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Book your favorite salon today!",
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                color: Colors.white70,
               ),
             ),
-            const SizedBox(width: 12),
-            Text("Hey ",
-                style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+            const SizedBox(height: 20),
+
+            // Search bar inside AppBar (optional but recommended
+
           ],
         ),
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-              onPressed: () {}),
-          IconButton(
-              icon: const Icon(Icons.bookmark_border, color: Colors.white),
-              onPressed: () {}),
-          const SizedBox(width: 8),
-        ],
       ),
+      actions: const [
+        IconButton(
+          icon: Icon(Icons.notifications_outlined, color: Colors.white, size: 26),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: Icon(Icons.bookmark_border, color: Colors.white, size: 26),
+          onPressed: null,
+        ),
+        SizedBox(width: 12),
+      ],
+    ),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -84,16 +100,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Greeting with real name
-            Text(
-              "Morning, ${user?.userMetadata?['full_name']?.split(' ').first ?? user?.email?.split('@').first ?? 'Guest'}!",
-              style: GoogleFonts.poppins(
-                  fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 4),
-            Text("Book your favorite salon today!",
-                style: GoogleFonts.poppins(color: Colors.white60)),
 
-            const SizedBox(height: 24),
 
             // Search Bar
             TextField(

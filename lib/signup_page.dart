@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'fill_profile_page.dart';
 import 'home_page.dart';
 import 'signin_page.dart';
+import 'login_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -61,11 +62,19 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
+
               IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                  );
+                },
                 icon: const Icon(Icons.arrow_back_ios, color: Colors.white70),
               ),
+
               const SizedBox(height: 20),
+
               Text(
                 "Create your\nAccount",
                 style: GoogleFonts.poppins(

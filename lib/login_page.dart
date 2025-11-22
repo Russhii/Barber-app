@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'signin_page.dart';
 import 'signup_page.dart';
+import 'fill_profile_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -58,7 +59,17 @@ class LoginPage extends StatelessWidget {
               _SocialButton(
                 icon: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg',
                 text: 'Continue with Google',
-                onTap: () => Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google),
+                onTap: () async {
+                  await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
+
+                  // After login → go directly to Fill Profile Page
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FillProfilePage()),
+                        (route) => false,
+                  );
+                },
+
               ),
 
               const SizedBox(height: 50),
@@ -70,7 +81,7 @@ class LoginPage extends StatelessWidget {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignInPage())),
+                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInPage())),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF6B00),
                     elevation: 20,
@@ -87,7 +98,7 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 40),
 
               GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
+                onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
                 child: Text.rich(
                   TextSpan(
                     text: "Don't have an account? ",

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
+import 'login_page.dart';
 
 class FillProfilePage extends StatefulWidget {
   const FillProfilePage({super.key});
@@ -113,7 +114,14 @@ class _FillProfilePageState extends State<FillProfilePage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white70),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+            );
+          },
+
         ),
         title: Text(
           "Fill Your Profile",
