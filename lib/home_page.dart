@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'profile_page.dart';
+import 'inbox_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,9 +19,16 @@ class _HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
+
     if (index == 4) {
+      // Profile
       Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
-    } else if (index != 0) {
+    }
+    else if (index == 3) {
+
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const InboxPage()));
+    }
+    else if (index != 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("${["", "Explore", "My Booking", "Inbox"][index]} Coming Soon")),
       );

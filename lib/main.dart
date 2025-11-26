@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
 import 'home_page.dart';
+import 'profile_page.dart';
 import 'fill_profile_page.dart';
 import 'reset_password_page.dart'; // ADD THIS
 
