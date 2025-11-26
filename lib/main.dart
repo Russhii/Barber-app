@@ -4,6 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
 import 'home_page.dart';
 import 'fill_profile_page.dart';
+import 'reset_password_page.dart'; // ADD THIS
+
+// Global navigator key — REQUIRED for deep link to work
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +18,17 @@ void main() async {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90Y3Fnb3phbGdwbXV6aG9jZGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2MjczODUsImV4cCI6MjA3OTIwMzM4NX0.7VXQbHbkM790MnO6CrNiGEfvN3gZtlE3d7M-24LX4_c',
   );
 
+// lib/main.dart — BEST VERSION (copy-paste)
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    final session = data.session;
+
+    if (session != null && (session.user.appMetadata['recovery'] == true)) {
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const ResetPasswordPage()),
+            (route) => false,
+      );
+    }
+  });
   runApp(const MyApp());
 }
 
@@ -23,6 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // ADD THIS LINE
       debugShowCheckedModeBanner: false,
       title: 'Salon App',
       theme: ThemeData(scaffoldBackgroundColor: const Color(0xFF0D0D0D)),
@@ -40,12 +56,14 @@ class AuthWrapper extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.orange)));
         }
 
         final user = snapshot.data?.session?.user;
 
-        if (user == null) return const LoginPage();
+        if (user == null) {
+          return const LoginPage();
+        }
 
         return FutureBuilder(
           future: Supabase.instance.client
@@ -55,7 +73,7 @@ class AuthWrapper extends StatelessWidget {
               .maybeSingle(),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              return const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.orange)));
             }
 
             final hasProfile = snap.hasData && snap.data != null && (snap.data as Map)['full_name'] != null;

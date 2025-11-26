@@ -37,8 +37,17 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/flags/
+
     - assets/avatar_placeholder.png
 
+
+    - assets/flags/in.png
+    - assets/flags/us.png
+    - assets/flags/gb.png
+    - assets/flags/au.png
+    - assets/flags/jp.png
+    - assets/flags/de.png
+    - assets/flags/fr.png
+    - assets/flags/ae.png
 
   # Add your assets here

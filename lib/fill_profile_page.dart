@@ -282,6 +282,9 @@ class _FillProfilePageState extends State<FillProfilePage> {
   }
 
   // PHONE FIELD — FULLY FIXED & TYPING WORKS PERFECTLY
+  String _selectedCountryCode = '+91';
+  String _selectedFlag = 'assets/flags/in.png';
+
   Widget _buildPhoneField() {
     return TextField(
       controller: _phoneCtrl,
@@ -292,24 +295,26 @@ class _FillProfilePageState extends State<FillProfilePage> {
         hintStyle: const TextStyle(color: Colors.white38),
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16, right: 12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                'assets/flags/us.png',
-                width: 28,
-                height: 20,
-                errorBuilder: (_, __, ___) => const Text("US", style: TextStyle(color: Colors.orange)),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "+1",
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(width: 12),
-              Container(width: 1, height: 24, color: Colors.white24),
-              const SizedBox(width: 12),
-            ],
+          child: GestureDetector(
+            onTap: _showCountryDialog,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  _selectedFlag,
+                  width: 32,
+                  height: 20,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.flag, color: Colors.orange, size: 24),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _selectedCountryCode,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const Icon(Icons.arrow_drop_down, color: Colors.white70),
+              ],
+            ),
           ),
         ),
         filled: true,
@@ -318,7 +323,51 @@ class _FillProfilePageState extends State<FillProfilePage> {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20),
+        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      ),
+    );
+  }
+
+// COUNTRY PICKER DIALOG
+  void _showCountryDialog() {
+    final countries = {
+      '+91': 'assets/flags/in.png',
+      '+1': 'assets/flags/us.png',
+      '+44': 'assets/flags/gb.png',
+      '+61': 'assets/flags/au.png',
+      '+81': 'assets/flags/jp.png',
+      '+49': 'assets/flags/de.png',
+      '+33': 'assets/flags/fr.png',
+      '+971': 'assets/flags/ae.png',
+    };
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: Text("Select Country", style: GoogleFonts.poppins(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: countries.length,
+            itemBuilder: (context, index) {
+              String code = countries.keys.elementAt(index);
+              String flag = countries[code]!;
+              return ListTile(
+                leading: Image.asset(flag, width: 32, height: 20),
+                title: Text(code, style: const TextStyle(color: Colors.white)),
+                onTap: () {
+                  setState(() {
+                    _selectedCountryCode = code;
+                    _selectedFlag = flag;
+                  });
+                  Navigator.pop(ctx);
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }

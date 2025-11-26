@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
 import 'signup_page.dart';
 import 'login_page.dart';
+import 'forgot_password_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -100,16 +101,38 @@ class _SignInPageState extends State<SignInPage> {
               ),
 
               const SizedBox(height: 16),
-              Center(child: Text("Forgot the password?", style: GoogleFonts.poppins(color: const Color(0xFFFF6B00)))),
-
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    // This opens your beautiful ForgotPasswordPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+                    );
+                  },
+                  child: Text(
+                    "Forgot the password?",
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFFFF6B00),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      decoration: TextDecoration.underline,
+                      decorationColor: const Color(0xFFFF6B00),
+                    ),
+                  ),
+                ),
+              ),
               const Spacer(),
               const Center(child: Text("or continue with", style: TextStyle(color: Colors.grey))),
               const SizedBox(height: 20),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/facebook.svg', color: const Color(0xFF1877F2)),
-                const SizedBox(width: 30),
-                _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg'),
-              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/facebook.svg', color: const Color(0xFF1877F2)),
+                  const SizedBox(width: 30),
+                  _SocialIcon('https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/google.svg'),
+                ],
+              ),
 
               const SizedBox(height: 30),
               Center(
